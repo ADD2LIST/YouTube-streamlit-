@@ -1,3 +1,5 @@
+
+
 import streamlit as st
 
 from pytube import YouTube
@@ -5,8 +7,6 @@ from pytube import YouTube
 import moviepy.editor as mp
 
 import os
-
-from tqdm import tqdm
 
 def main():
 
@@ -30,21 +30,9 @@ def main():
 
             video_file = video.default_filename
 
-            # Get the total file size for progress tracking
+            # Download the video
 
-            total_size = video.filesize
-
-            # Create a progress bar using tqdm
-
-            progress_bar = tqdm(total=total_size, unit='iB', unit_scale=True)
-
-            # Download the video with progress update
-
-            video.download(filename=video_file, on_progress=update_progress_bar)
-
-            # Close the progress bar
-
-            progress_bar.close()
+            video.download(filename=video_file)
 
             # Convert the video to MP3 format
 
@@ -68,7 +56,7 @@ def main():
 
             st.text("Download video file:")
 
-            st.download_button(label="Download", data=video_file, file_name=video_file)
+            st.download_button(label="Download", data=open(video_file, 'rb'), file_name=video_file)
 
             # Clean up downloaded files
 
@@ -80,17 +68,14 @@ def main():
 
             st.error("An error occurred: " + str(e))
 
-def update_progress_bar(stream, chunk, file_handle, remaining):
-
-    # Calculate the percentage of file downloaded
-
-    progress = (total_size - remaining) / total_size * 100
-
-    progress_bar.update(chunk)
-
 if __name__ == "__main__":
 
     main()
+
+
+        
+
+   
 
 
 
