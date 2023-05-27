@@ -6,6 +6,8 @@ import moviepy.editor as mp
 
 import os
 
+from tqdm import tqdm
+
 def main():
 
     st.title("YouTube Video Downloader")
@@ -26,13 +28,27 @@ def main():
 
             video = yt.streams.get_highest_resolution()
 
-            video.download()
+            video_file = video.default_filename
+
+            # Get the total file size for progress tracking
+
+            total_size = video.filesize
+
+            # Create a progress bar using tqdm
+
+            progress_bar = tqdm(total=total_size, unit='iB', unit_scale=True)
+
+            # Download the video with progress update
+
+            video.download(filename=video_file, on_progress=update_progress_bar)
+
+            # Close the progress bar
+
+            progress_bar.close()
 
             # Convert the video to MP3 format
 
             st.text("Converting video to MP3...")
-
-            video_file = video.default_filename
 
             mp3_file = os.path.splitext(video_file)[0] + ".mp3"
 
@@ -48,6 +64,12 @@ def main():
 
             st.audio(mp3_file, format='audio/mp3')
 
+            # Provide download link to the video file
+
+            st.text("Download video file:")
+
+            st.download_button(label="Download", data=video_file, file_name=video_file)
+
             # Clean up downloaded files
 
             os.remove(video_file)
@@ -58,7 +80,20 @@ def main():
 
             st.error("An error occurred: " + str(e))
 
+def update_progress_bar(stream, chunk, file_handle, remaining):
+
+    # Calculate the percentage of file downloaded
+
+    progress = (total_size - remaining) / total_size * 100
+
+    progress_bar.update(chunk)
+
 if __name__ == "__main__":
 
     main()
 
+
+
+        
+
+   
